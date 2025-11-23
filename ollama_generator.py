@@ -12,19 +12,26 @@
 
 import ollama
 from GeneratorModel import *
-
+import json
 
 class OllamaModel(GeneratorModel):
-	def __init__(self, model_name):
-		self.model_name = model_name
+    def __init__(self, model_name):
+        self.model_name = model_name
+        with open("datasets/retrieval_texts.json", "r", encoding="utf-8") as retrieval_texts:
+            docs = json.load(retrieval_texts)
+        self.document_content = {doc["id"]: doc["text"] for doc in docs}
 
-	def query(self, retrieved_documents, question):
-		retrieved_documents_str = '\n'.join(retrieved_documents)
-		prompt = PROMPT.format(retrieved_documents=retrieved_documents_str, question=question)
-		print(len(prompt.split()))
-		response = ollama.chat(model=self.model_name, messages=[{
-			'role': 'user',
-			'content': prompt,
-		}])
-		return response['message']['content']
+    def query(self, retrieved_documents, question):
+        retrieved_texts = [
+            self.document_content.get(doc_id, "") for doc_id in retrieved_documents
+        ]
+        retrieved_documents_str = "\n".join(retrieved_texts)
 
+        prompt = PROMPT.format(retrieved_documents=retrieved_documents_str, question=question)
+        print(len(prompt.split()))
+
+        response = ollama.chat(model=self.model_name, messages=[{
+            'role': 'user',
+            'content': prompt,
+        }])
+        return response['message']['content']

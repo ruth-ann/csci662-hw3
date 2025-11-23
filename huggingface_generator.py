@@ -7,7 +7,7 @@
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from GeneratorModel import *
-
+import json
 
 class HFModel(GeneratorModel):
 	def __init__(self, model_name):
@@ -15,27 +15,35 @@ class HFModel(GeneratorModel):
 		# Load the HuggingFace model and tokenizer
 		self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 		self.model = AutoModelForCausalLM.from_pretrained(model_name)
+		with open("datasets/retrieval_texts.json", "r", encoding="utf-8") as retrieval_texts:
+			docs = json.load(retrieval_texts)
+		self.document_content = {doc["id"]: doc["text"] for doc in docs}
 
 	def query(self, retrieved_documents, question):
-		retrieved_documents_str = '\n'.join(retrieved_documents)
+		retrieved_texts = [
+			self.document_content.get(doc_id, "") for doc_id in retrieved_documents
+		]
+		retrieved_documents_str = "\n".join(retrieved_texts)
+
 		prompt = PROMPT.format(retrieved_documents=retrieved_documents_str, question=question)
-		
+
 		# Tokenize the prompt and attend to all tokens
 		inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
 		attention_mask = inputs["input_ids"].ne(self.tokenizer.pad_token_id).long()
 
-        # Generate a response
+		# Generate a response
 		outputs = self.model.generate(
-            inputs["input_ids"],
+			inputs["input_ids"],
 			attention_mask=attention_mask,
-            max_new_tokens=100,  # Adjust as needed
-            num_return_sequences=1,
-            temperature=0.7,  # Adjust temperature for randomness
-            top_p=0.9,  # Adjust top-p for nucleus sampling
-            do_sample=True
-        )
+			max_new_tokens=100,  # Adjust as needed
+			num_return_sequences=1,
+			temperature=0.7,  # Adjust temperature for randomness
+			top_p=0.9,  # Adjust top-p for nucleus sampling
+			do_sample=True
+		)
 
-        # Decode the generated response
-		response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+		generated = outputs[0][inputs["input_ids"].shape[1]:]
+
+		# Decode the generated response
+		response = self.tokenizer.decode(generated, skip_special_tokens=True)
 		return response
-

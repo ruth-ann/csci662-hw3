@@ -2,13 +2,14 @@ import argparse
 from ollama_generator import *
 from huggingface_generator import *
 from bm25 import * 
+from tfidf import *
 from tqdm import tqdm
 
 def get_arguments():
     parser = argparse.ArgumentParser(description="Generator")
     parser.add_argument('-r', default="bm25", help="retriever model: name of the retriever model you used.")
     parser.add_argument("-n", help="index name: the name of the index that you created with 'index.py'.")
-    parser.add_argument("-k", help="top k: the number of documents to return in each retrieval run.")
+    parser.add_argument("-k", type=int, help="top k: the number of documents to return in each retrieval run.")
 
     parser.add_argument("-p", default="ollama", help="Platform to use for the generator.")
     parser.add_argument("-m", help="type of model to use to generate: gemma2:2b, etc.")
@@ -26,7 +27,7 @@ if __name__ == "__main__":
         retriever = BM25(args.n).load_model()
     else:
         # TODO add at least one more retriever
-        retriever = None
+        retriever = TF_IDF(args.n).load_model()
 
     if args.p == 'ollama':
         generator = OllamaModel(model_name=args.m)

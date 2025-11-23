@@ -2,7 +2,14 @@ from abc import ABCMeta, abstractmethod
 
 # TODO define prompt(s)
 PROMPT = """
-<you should define this prompt>
+Please answer the following question using the documents listed or your own knowledge. Please make a helpful effort to answer the question. Please keep your answer concise.
+Documents:
+{retrieved_documents}
+
+Question:
+{question}
+
+Answer:
 """
 
 class GeneratorModel(object, metaclass=ABCMeta):

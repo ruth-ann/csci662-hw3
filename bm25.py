@@ -35,7 +35,21 @@ class BM25(RetrievalModel):
         # print(os.getcwd())
 
         se = SearchEngine(self.model_file,hyperparams=dict(b=self.b, k1=self.k))
-    
+        # se = SparseRetriever(
+        #     index_name=self.model_file,
+        #     model="bm25",
+        #     min_df=3,
+        #     tokenizer="whitespace",
+        #     stemmer="english",
+        #     stopwords="english",
+        #     do_lowercasing=True,
+        #     do_ampersand_normalization=True,
+        #     do_special_chars_normalization=True,
+        #     do_acronyms_normalization=True,
+        #     do_punctuation_removal=True,
+        #     hyperparams=dict(b=self.b, k1=self.k)
+        #     )
+
         self.json_to_jsonl(input_file, "input.jsonl")
 
         #ref: https://pypi.org/project/retriv/0.1.2/
@@ -43,10 +57,7 @@ class BM25(RetrievalModel):
             path="input.jsonl", 
             show_progress=True,  
         )
-        print(se.inverted_index)
-        print(se.index_name)
-
-        se.save()
+        # se.save()
         self.save_model()
 
 
@@ -61,7 +72,7 @@ class BM25(RetrievalModel):
         ## TODO write your code here (and change return)
         se = SearchEngine.load(index_name=self.model_file)
 
-        results = se.search(query)
+        results = se.search(query, cutoff=k)
         return [r["id"] for r in results]
 
     #from chatgpt

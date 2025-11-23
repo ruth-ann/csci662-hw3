@@ -11,13 +11,8 @@ from retriv import SparseRetriever, SearchEngine
 import json
 
 class TF_IDF(RetrievalModel):
-    def __init__(self, model_file, b=.75, k=1.2):
-        self.b = b
-        self.k = k
-        self.token2id = {}
-        self.doc_ids = {} 
+    def __init__(self, model_file):
         # TODO add more dicts as needed to store frequencies/scores
-        self.avg_num_words_per_doc = None
         self.model_file = model_file
         super().__init__(model_file)
 
@@ -39,7 +34,7 @@ class TF_IDF(RetrievalModel):
             path="input.jsonl", 
             show_progress=True,  
         )
-        # se.save(self.model_file)
+        se.save()
         self.save_model()
 
 
@@ -52,9 +47,9 @@ class TF_IDF(RetrievalModel):
         :return: predictions list
         """
         ## TODO write your code here (and change return)
-        se = SearchEngine(index_path=self.model_file)
+        se = SearchEngine.load(index_name=self.model_file)
 
-        results = se.search(query, k=k)
+        results = se.search(query, cutoff=k)
         return [r["id"] for r in results]
 
     #from chatgpt
