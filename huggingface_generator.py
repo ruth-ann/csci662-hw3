@@ -42,8 +42,7 @@ class HFModel(GeneratorModel):
 			do_sample=True
 		)
 
-		generated = outputs[0][inputs["input_ids"].shape[1]:]
 
 		# Decode the generated response
-		response = self.tokenizer.decode(generated, skip_special_tokens=True)
+		response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 		return response
