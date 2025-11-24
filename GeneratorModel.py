@@ -1,16 +1,16 @@
 from abc import ABCMeta, abstractmethod
 
 # TODO define prompt(s)
-# PROMPT = """
-# Please answer the following question using the documents listed or your own knowledge. Please make a helpful effort to answer the question. Please keep your answer concise.
-# Documents:
-# {retrieved_documents}
+PROMPT = """
+Please answer the following question using the documents listed or your own knowledge. Please make a helpful effort to answer the question. Please keep your answer concise.
+Documents:
+{retrieved_documents}
 
-# Question:
-# {question}
+Question:
+{question}
 
-# Answer:
-# """
+Answer:
+"""
 
 # PROMPT = """
 # Please answer the following question using your own knowledge. Please make an effort to answer the question. Please keep your answer concise.
@@ -41,16 +41,16 @@ from abc import ABCMeta, abstractmethod
 # Answer:
 # """
 
-PROMPT = """
-Please state whether the answer to the question is present in the document by outputting True or False. Do not output anything else
-Documents:
-{retrieved_documents}
+# PROMPT = """
+# Please state whether the answer to the question is present in the document by outputting True or False. Do not output anything else
+# Documents:
+# {retrieved_documents}
 
-Question:
-{question}
+# Question:
+# {question}
 
-True or False:
-"""
+# True or False:
+# """
 
 
 class GeneratorModel(object, metaclass=ABCMeta):
