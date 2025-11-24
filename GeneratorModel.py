@@ -32,14 +32,26 @@ from abc import ABCMeta, abstractmethod
 # """
 
 
+# PROMPT = """
+# Please answer the following question using your own knowledge. You can make educated guesses and reason to arrive at the right answer. Please think carefully and apply logic before you respond.
+
+# Question:
+# {question}
+
+# Answer:
+# """
+
 PROMPT = """
-Please answer the following question using your own knowledge. You can make educated guesses and reason to arrive at the right answer. Please think carefully and apply logic before you respond.
+Please state whether the answer to the question is present in the document by outputting True or False. Do not output anything else
+Documents:
+{retrieved_documents}
 
 Question:
 {question}
 
-Answer:
+True or False:
 """
+
 
 class GeneratorModel(object, metaclass=ABCMeta):
     def __init__(self, model_file):
