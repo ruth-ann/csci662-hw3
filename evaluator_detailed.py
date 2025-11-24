@@ -1,14 +1,12 @@
 import argparse
 import os
+import csv
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", type=str, required=True)
-    parser.add_argument("-t", type=str, required=True)
+    parser.add_argument("-p", nargs='+', required=True, help="Prediction files (space-separated)")
+    parser.add_argument("-t", type=str, required=True, help="Gold answers file")
     args = parser.parse_args()
-
-    with open(args.p, "r") as f:
-        to_score = f.read().strip().split('\n')
 
     with open(args.t, "r") as f:
         truth = f.read().strip().split('\n')
@@ -16,28 +14,52 @@ if __name__ == "__main__":
     with open("datasets/questions.dev.txt", "r") as f:
         questions = f.read().strip().split('\n')
 
-    assert len(to_score) == len(truth) == len(questions), "Predictions, truth, and questions must have the same number of lines"
+    assert all(len(open(f).read().strip().split('\n')) == len(truth) for f in args.p), "All prediction files must have the same number of lines as gold answers and questions"
 
-    correct = 0
-    tsv_file = os.path.join(os.path.dirname(args.p), f"analysis_{os.path.basename(args.p)}.tsv")
-    with open(tsv_file, "w") as out:
-        out.write("Question\tPrediction\tGold\tCorrect\n")
-        for q, pred, gold in zip(questions, to_score, truth):
-            matched = False
-            for gold_item in gold.split('\t'):
-                gold_item = gold_item.strip()
-                # strip off possible stray " 
-                gold_item = gold_item.replace('"', '')
-                if gold_item == '':
-                    continue
-                if gold_item in pred:
-                    matched = True
-                    break
+    combined_file = os.path.join(os.path.dirname(args.p[0]), "analysis_all.csv")
+    headers = ["question", "question_words", "question_chars"]
+    model_names = []
+    for f in args.p:
+        name = os.path.splitext(os.path.basename(f))[0]
+        model_names.append(name)
+        headers.append(f"prediction_{name}")
+        headers.append(f"correct_{name}")
+    headers += ["models_correct", "num_models_correct"]
 
-            if matched:
-                correct += 1
+    with open(combined_file, "w", newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(headers)
 
-            out.write(f"{q}\t{pred}\t{gold}\t{matched}\n")
+        preds_data = []
+        for f in args.p:
+            with open(f, "r") as pf:
+                preds_data.append(pf.read().strip().split('\n'))
 
-    print(f"{correct / len(to_score)}")
-    print(f"Analysis saved to {tsv_file}")
+        for i, q in enumerate(questions):
+            row = [q, len(q.split()), len(q)]
+            correct_models = []
+
+            for j, f in enumerate(args.p):
+                pred = preds_data[j][i]
+                gold = truth[i]
+
+                matched = 0
+                for gold_item in gold.split('\t'):
+                    gold_item = gold_item.strip()
+                    # strip off possible stray " 
+                    gold_item = gold_item.replace('"', '')
+                    if gold_item == '':
+                        continue
+                    if gold_item in pred:
+                        matched = 1
+                        correct_models.append(model_names[j])
+                        break
+
+                row.append(pred)
+                row.append(matched)
+
+            row.append(",".join(correct_models))
+            row.append(len(correct_models))
+            writer.writerow(row)
+
+    print(f"Combined analysis saved to {combined_file}")
