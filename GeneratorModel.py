@@ -1,16 +1,16 @@
 from abc import ABCMeta, abstractmethod
 
 # TODO define prompt(s)
-PROMPT = """
-Please answer the following question using the documents listed or your own knowledge. Please make a helpful effort to answer the question. Please keep your answer concise.
-Documents:
-{retrieved_documents}
+# PROMPT = """
+# Please answer the following question using the documents listed or your own knowledge. Please make a helpful effort to answer the question. Please keep your answer concise.
+# Documents:
+# {retrieved_documents}
 
-Question:
-{question}
+# Question:
+# {question}
 
-Answer:
-"""
+# Answer:
+# """
 
 # PROMPT = """
 # Please answer the following question using your own knowledge. Please make an effort to answer the question. Please keep your answer concise.
@@ -32,14 +32,14 @@ Answer:
 # """
 
 
-# PROMPT = """
-# Please answer the following question using your own knowledge. You can make educated guesses and reason to arrive at the right answer. Please think carefully and apply logic before you respond.
+PROMPT = """
+Please answer the following question using your own knowledge. You can make educated guesses and reason to arrive at the right answer. Please think carefully and apply logic before you respond.
 
-# Question:
-# {question}
+Question:
+{question}
 
-# Answer:
-# """
+Answer:
+"""
 
 class GeneratorModel(object, metaclass=ABCMeta):
     def __init__(self, model_file):
