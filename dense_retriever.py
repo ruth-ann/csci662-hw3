@@ -54,19 +54,15 @@ class Dense(RetrievalModel):
         :param k: the number of retrieval results
         :return: predictions list
         """
-        ## TODO write your code here (and change return)
-        dr = DenseRetriever.load(index_name=self.model_file)
+        se = SearchEngine.load(index_name=self.model_file)
 
-        results = dr.search(query, cutoff=k)
-        return [r["id"] for r in results]
+        predictions = se.search(query, cutoff=k)
+        return [pred["id"] for pred in predictions]
 
-    #from chatgpt
-    def json_to_jsonl(self, in_path, out_path):
-        with open(in_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        with open(out_path, "w", encoding="utf-8") as out:
+    def json_to_jsonl(self, input, output):
+        with open(input, "r", encoding="utf-8") as file:
+            data = json.load(file)
+        with open(output, "w", encoding="utf-8") as out:
             for obj in data:
                 out.write(json.dumps(obj) + "\n")
-
-
 

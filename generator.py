@@ -14,7 +14,8 @@ def get_arguments():
 
     parser.add_argument("-p", default="ollama", help="Platform to use for the generator.")
     parser.add_argument("-m", help="type of model to use to generate: gemma2:2b, etc.")
-    
+    parser.add_argument("-pr", default="default", help="prompt version to use - options are default, vanilla, reasoning and force")
+
     parser.add_argument("-i", default="datasets/questions.dev.txt", help="input file: path of the input file of questions, where each question is in the form: <text> for each newline")
     parser.add_argument("-o", default="output.answers.txt", help="output file: path of the file where the answers should be written") # Respect the naming convention for the model: make sure to name it *.answers.txt in your workplace otherwise the grading script will fail
 
@@ -27,13 +28,12 @@ if __name__ == "__main__":
     if args.r == "bm25":
         retriever = BM25(args.n).load_model()
     elif args.r == "tfidf":
-        # TODO add at least one more retriever
         retriever = TF_IDF(args.n).load_model()
     else:
         retriever = Dense(args.n).load_model()
 
     if args.p == 'ollama':
-        generator = OllamaModel(model_name=args.m)
+        generator = OllamaModel(model_name=args.m, prompt_mode=args.pr)
     elif args.p in ['HuggingFace', 'huggingface', 'hf', 'HF']:
         generator = HFModel(args.m)
 

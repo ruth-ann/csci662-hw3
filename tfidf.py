@@ -12,7 +12,6 @@ import json
 
 class TF_IDF(RetrievalModel):
     def __init__(self, model_file):
-        # TODO add more dicts as needed to store frequencies/scores
         self.model_file = model_file
         super().__init__(model_file)
 
@@ -22,10 +21,6 @@ class TF_IDF(RetrievalModel):
         This method is used to train your models and generated for a given input_file a trained model
         :param input_file: path to training file with a text and a label per each line
         """
-        ## TODO write your code here to calculate term_doc_freqs and relative_doc_lens, 
-        
-
-        # then cache the class object using `self.save_model`
         se = SearchEngine(self.model_file,  model="tf-idf")
         self.json_to_jsonl(input_file, "input.jsonl")
 
@@ -46,19 +41,16 @@ class TF_IDF(RetrievalModel):
         :param k: the number of retrieval results
         :return: predictions list
         """
-        ## TODO write your code here (and change return)
         se = SearchEngine.load(index_name=self.model_file)
 
-        results = se.search(query, cutoff=k)
-        return [r["id"] for r in results]
+        predictions = se.search(query, cutoff=k)
+        return [pred["id"] for pred in predictions]
 
-    #from chatgpt
-    def json_to_jsonl(self, in_path, out_path):
-        with open(in_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        with open(out_path, "w", encoding="utf-8") as out:
+    def json_to_jsonl(self, input, output):
+        with open(input, "r", encoding="utf-8") as file:
+            data = json.load(file)
+        with open(output, "w", encoding="utf-8") as out:
             for obj in data:
                 out.write(json.dumps(obj) + "\n")
-
 
 

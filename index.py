@@ -23,7 +23,6 @@ if __name__ == "__main__":
     if "bm25" in args.m:
         model = BM25(model_file=args.o, b=args.b, k=args.k, min_df=args.md)
     elif "tfidf" in args.m:
-        ## TODO add at least one other retriever
         model = TF_IDF(model_file=args.o)
     else:
         model = Dense(model_file=args.o)
