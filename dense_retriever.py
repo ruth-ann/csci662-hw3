@@ -7,17 +7,12 @@
  You are allowed to use libraries like retriv
 """
 from RetrievalModel import *
-from retriv import SparseRetriever, SearchEngine
+from retriv import DenseRetriever
 import json
 import os
-class BM25(RetrievalModel):
-    def __init__(self, model_file, b=.75, k=1.2, min_df=1):
-        self.b = b
-        self.k = k
-        self.min_df=min_df
+class Dense(RetrievalModel):
+    def __init__(self, model_file):
         self.model_file = model_file
-        print("Parameters: ",self.b, self.k, self.min_df)
-
         super().__init__(model_file)
 
 
@@ -30,29 +25,20 @@ class BM25(RetrievalModel):
         
 
         # then cache the class object using `self.save_model`
-        # os.makedirs(self.model_file, exist_ok=True)
-        # print(os.getcwd())
 
-        # se = SearchEngine(self.model_file,hyperparams=dict(b=self.b, k1=self.k))
-        se = SparseRetriever(
+        dr = DenseRetriever(
             index_name=self.model_file,
-            model="bm25",
-            min_df=self.min_df,
-            tokenizer="whitespace",
-            stemmer="english",
-            stopwords="english",
-            do_lowercasing=True,
-            do_ampersand_normalization=True,
-            do_special_chars_normalization=True,
-            do_acronyms_normalization=True,
-            do_punctuation_removal=True,
-            hyperparams=dict(b=self.b, k1=self.k)
-            )
+            model="sentence-transformers/all-MiniLM-L6-v2",
+            normalize=True,
+            max_length=128,
+            use_ann=True,
+        )
+
 
         self.json_to_jsonl(input_file, "input.jsonl")
 
         #ref: https://pypi.org/project/retriv/0.1.2/
-        se.index_file(
+        dr.index_file(
             path="input.jsonl", 
             show_progress=True,  
         )
@@ -69,9 +55,9 @@ class BM25(RetrievalModel):
         :return: predictions list
         """
         ## TODO write your code here (and change return)
-        se = SearchEngine.load(index_name=self.model_file)
+        dr = DenseRetriever.load(index_name=self.model_file)
 
-        results = se.search(query, cutoff=k)
+        results = dr.search(query, cutoff=k)
         return [r["id"] for r in results]
 
     #from chatgpt

@@ -3,6 +3,7 @@ from ollama_generator import *
 from huggingface_generator import *
 from bm25 import * 
 from tfidf import *
+from dense_retriever import *
 from tqdm import tqdm
 
 def get_arguments():
@@ -25,9 +26,11 @@ if __name__ == "__main__":
 
     if args.r == "bm25":
         retriever = BM25(args.n).load_model()
-    else:
+    elif args.r == "tfidf":
         # TODO add at least one more retriever
         retriever = TF_IDF(args.n).load_model()
+    else:
+        retriever = Dense(args.n).load_model()
 
     if args.p == 'ollama':
         generator = OllamaModel(model_name=args.m)
